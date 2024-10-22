@@ -3,46 +3,28 @@ package app.morebook.service;
 import app.morebook.dto.Data4LibraryBookDto;
 import app.morebook.model.Book;
 import app.morebook.repository.BookRepository;
-import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
-
-import java.net.URI;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class BookService {
 
     private final BookRepository bookRepository;
-    private final RestTemplate restTemplate;
+    private final Data4LibraryService data4LibraryService;
 
     public Book find(Integer id) {
-        apiCall();
-        return bookRepository.findById(id).orElse(null);
+        Book book = bookRepository.findById(id).orElse(null);
+
+        if (book.getBookImageUrl() == null) {
+            Data4LibraryBookDto bookDetail = data4LibraryService.getBookDetail(book.getIsbn());
+            book.updateImageAndDesc(bookDetail.getBookImageURL(), bookDetail.getDescription());
+        }
+
+        return book;
     }
 
-    public void apiCall() {
-        URI uri = UriComponentsBuilder
-                .fromUriString("http://data4library.kr")
-                .path("/api/srchDtlList")
-                .queryParam("authKey", "")
-                .queryParam("isbn13", "9791191496680")
-                .queryParam("format", "json")
-                .encode()
-                .build()
-                .toUri();
-
-        ResponseEntity<String> result = restTemplate.getForEntity(uri, String.class);
-        String json = result.getBody();
-        int startIndex = json.indexOf("{\"no");
-        int endIndex = json.indexOf("}}");
-        String jsonObject = json.substring(startIndex, endIndex + 1);
-
-        Gson gson = new Gson();
-        Data4LibraryBookDto data4LibraryBookDto = gson.fromJson(jsonObject, Data4LibraryBookDto.class);
-    }
 
 }

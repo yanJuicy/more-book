@@ -45,4 +45,9 @@ public class Book {
         this.isbn = isbn;
         this.description = description;
     }
+
+    public void updateImageAndDesc(String imageUrl, String description) {
+        this.bookImageUrl = imageUrl;
+        this.description = description;
+    }
 }
