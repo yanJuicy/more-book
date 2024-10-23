@@ -18,9 +18,16 @@ public class BookService {
     public Book find(Integer id) {
         Book book = bookRepository.findById(id).orElse(null);
 
+        Data4LibraryBookDto bookDetail = null;
+
         if (book.getBookImageUrl() == null) {
-            Data4LibraryBookDto bookDetail = data4LibraryService.getBookDetail(book.getIsbn());
-            book.updateImageAndDesc(bookDetail.getBookImageURL(), bookDetail.getDescription());
+            bookDetail = data4LibraryService.getBookDetail(book.getIsbn());
+            book.updateImageUrl(bookDetail.getBookImageURL());
+        }
+
+        if (book.getDescription() == null) {
+            bookDetail = data4LibraryService.getBookDetail(book.getIsbn());
+            book.updateDescription(bookDetail.getDescription());
         }
 
         return book;

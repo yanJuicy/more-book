@@ -46,8 +46,15 @@ public class Book {
         this.description = description;
     }
 
-    public void updateImageAndDesc(String imageUrl, String description) {
-        this.bookImageUrl = imageUrl;
-        this.description = description;
+    public void updateImageUrl(String imageUrl) {
+        if (imageUrl != null) {
+            this.bookImageUrl = imageUrl;
+        }
+    }
+
+    public void updateDescription(String description) {
+        if (description != null) {
+            this.description = description;
+        }
     }
 }
